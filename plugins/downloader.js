@@ -377,3 +377,137 @@ command(
         }
     }
 );
+
+
+command(
+  {
+    pattern: "yts",
+    fromMe: true,
+    desc: "Search YouTube and fetch video details",
+    type: "search",
+  },
+  async (message, match) => {
+    try {
+      if (!match) {
+        await message.react("❌️");
+        return await message.reply("Please provide a search term.");
+      }
+
+      await message.react("⏳️");
+
+      // Parse query and optional limit
+      const [query, limit] = match.split(",").map((item) => item.trim());
+      const maxResults = limit && !isNaN(limit) ? parseInt(limit) : null;
+
+      const response = await getJson(`https://nikka-api.us.kg/search/yts?apiKey=nikka&q=${query}`);
+
+      if (!response || !response.data || response.data.length === 0) {
+        await message.react("❌️");
+        return await message.reply("No results found for your query.");
+      }
+
+      // Limit results if a valid limit is provided
+      const results = response.data.slice(0, maxResults || response.data.length).map((res, index) => {
+        return `
+📌 **Result ${index + 1}:**
+> **Title:** ${res.title || "N/A"}
+> **Description:** ${res.description || "N/A"}
+> **URL:** ${res.url || "N/A"}
+        `;
+      }).join("\n\n");
+
+      await message.client.sendMessage(
+        message.jid,
+        {
+          text: `🎥 **YouTube Search Results:**\n\n${results}`,
+        }
+      );
+
+      await message.react("✅️");
+    } catch (error) {
+      console.error("Error in yts command:", error);
+      await message.react("❌️");
+      await message.reply("An error occurred while fetching YouTube search results.");
+    }
+  }
+);
+command(
+  {
+    pattern: "ytmp3",
+    fromMe: true,
+    desc: "Download YouTube audio",
+    type: "download",
+  },
+  async (message, match) => {
+    if (!match)
+      return await message.reply("❌ Please provide a YouTube URL.");
+
+    const apiUrl = `https://api.giftedtech.my.id/api/download/ytaudio?apikey=gifted&url=${match}`;
+
+    try {
+      await message.react("⏳"); // Reacting to show process has started
+
+      const response = await getJson(apiUrl);
+
+      if (response.status !== 200 || !response.success)
+        return await message.reply("❌ Failed to fetch audio. Please try again.");
+
+      const { title, download_url } = response.result;
+
+      await message.reply(`Now downloading: *${title}*...`);
+      await message.client.sendMessage(message.jid, {
+        audio: { url: download_url },
+        mimetype: "audio/mpeg",
+        caption: `🎶 *${title}* - Downloaded successfully!`,
+      });
+
+      await message.react("✅"); // Reacting to show success
+    } catch (error) {
+      console.error("Error in ytmp3 command:", error);
+      await message.reply("❌ An error occurred while processing your request.");
+      await message.react("❌"); // Reacting to show failure
+    }
+  }
+);
+
+
+
+command(
+  {
+    pattern: "ytmp4",
+    fromMe: true,
+    desc: "Download YouTube video",
+    type: "download",
+  },
+  async (message, match) => {
+    if (!match)
+      return await message.reply("❌ Please provide a YouTube URL.");
+
+    const apiUrl = `https://api.giftedtech.my.id/api/download/ytvideo?apikey=gifted&url=${match}`;
+
+    try {
+      await message.react("⏳"); // Reacting to show process has started
+
+      const response = await getJson(apiUrl);
+
+      if (response.status !== 200 || !response.success)
+        return await message.reply("❌ Failed to fetch video. Please try again.");
+
+      const { title, download_url } = response.result;
+
+      await message.reply(`Now downloading: *${title}*...`);
+      await message.client.sendMessage(message.jid, {
+        video: { url: download_url },
+        mimetype: "video/mp4",
+        caption: `🎬 *${title}* - Downloaded successfully!`,
+      });
+
+      await message.react("✅"); // Reacting to show success
+    } catch (error) {
+      console.error("Error in ytmp4 command:", error);
+      await message.reply("❌ An error occurred while processing your request.");
+      await message.react("❌"); // Reacting to show failure
+    }
+  }
+);
+
