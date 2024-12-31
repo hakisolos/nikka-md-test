@@ -182,3 +182,59 @@ command(
     }
   }
 );
+command(
+  {
+    pattern: "chord",
+    fromMe: true,
+    desc: "Fetch song lyrics and chords",
+    type: "search",
+  },
+  async (message, match) => {
+    try {
+      if (!match) {
+        await message.react("❌️");
+        return await message.reply("Please provide a song name or query.");
+      }
+
+      await message.react("⏳️");
+
+      // Fetch data from the Chord API
+      const response = await getJson(`https://api.giftedtech.my.id/api/search/chord?apikey=gifted&query=${encodeURIComponent(match)}`);
+
+      if (!response || !response.results) {
+        await message.react("❌️");
+        return await message.reply("No results found for your query.");
+      }
+
+      // Extract required details
+      const { title, artist, lyrics } = response.results;
+
+      // Clean up the lyrics
+      const cleanedLyrics = lyrics
+        .replace(/:\s*/g, "") // Remove colons
+        .replace(/\s+/g, " ") // Remove excessive spaces
+        .trim();
+
+      // Prepare the response text
+      const resultText = `
+🎵 **Title:** ${title || "N/A"}
+🎤 **Artist:** ${artist || "N/A"}
+📜 **Lyrics:**
+${cleanedLyrics || "No lyrics available."}
+      `;
+
+      await message.client.sendMessage(
+        message.jid,
+        {
+          text: resultText,
+        }
+      );
+
+      await message.react("✅️");
+    } catch (error) {
+      console.error("Error in chord command:", error);
+      await message.react("❌️");
+      await message.reply("An error occurred while fetching the song details.");
+    }
+  }
+);
