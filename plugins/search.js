@@ -72,3 +72,58 @@ command(
         }
     }
 );
+command(
+  {
+    pattern: "wiki",
+    fromMe: true,
+    desc: "Search Wikipedia and fetch article details",
+    type: "search",
+  },
+  async (message, match) => {
+    try {
+      if (!match) {
+        await message.react("❌️");
+        return await message.reply("Please provide a search term.");
+      }
+
+      await message.react("⏳️");
+
+      // Parse query and optional limit
+      const [query, limit] = match.split(",").map((item) => item.trim());
+      const maxResults = limit && !isNaN(limit) ? parseInt(limit) : null;
+
+      // Fetch data from the Wikipedia API
+      const response = await getJson(`https://api.giftedtech.my.id/api/search/wikimedia?apikey=gifted&title=${encodeURIComponent(query)}`);
+
+      if (!response || !response.results || response.results.length === 0) {
+        await message.react("❌️");
+        return await message.reply("No results found for your query.");
+      }
+
+      // Limit results if a valid limit is provided
+      const results = response.results
+        .slice(0, maxResults || response.results.length)
+        .map(
+          (res, index) => `
+📌 **Result ${index + 1}:**
+> **Title:** ${res.title || "N/A"}
+> **Source:** ${res.source || "N/A"}
+        `
+        )
+        .join("\n\n");
+
+      await message.client.sendMessage(
+        message.jid,
+        {
+          text: `📚 **Wikipedia Search Results:**\n\n${results}`,
+        }
+      );
+
+      await message.react("✅️");
+    } catch (error) {
+      console.error("Error in wiki command:", error);
+      await message.react("❌️");
+      await message.reply("An error occurred while fetching Wikipedia search results.");
+    }
+  }
+);
