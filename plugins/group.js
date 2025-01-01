@@ -690,3 +690,32 @@ const sui = "\n*GROUP INFO*\n\n*id* : " + metadata.id + "\n*title* : " + metadat
 return await message.client.sendMessage(message.jid,{ document :{ url: "https://www.mediafire.com/file/n1qjfxjgvt0ovm2/IMG-20240211-WA0086_%25281%2529.pdf/file" }, fileName: "𝗚𝗥𝗢𝗨𝗣 𝗜𝗡𝗙𝗢" , mimetype: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileLength: "999999950", caption: (sui)}, {quoted: message })
     }
     );
+
+const fs = require("fs");
+
+command(
+    {
+        pattern: "greeting",
+        desc: "Toggle greeting messages on or off.",
+        fromMe: true,
+        type: "public", // This allows any user to run the command
+    },
+    async (message, match) => {
+        if (!message.isGroup) return await message.reply("This command can only be used in groups.");
+
+        const action = match.toLowerCase();
+        
+        if (action === "on") {
+            config.GREETINGS = true;
+            await message.reply("Greeting messages have been enabled.");
+        } else if (action === "off") {
+            config.GREETINGS = false;
+            await message.reply("Greeting messages have been disabled.");
+        } else {
+            return await message.reply("Usage: !greeting on or !greeting off");
+        }
+
+        // Save the updated config to the config file
+        fs.writeFileSync("../config.js", `module.exports = ${JSON.stringify(config, null, 2)};`);
+    }
+);
