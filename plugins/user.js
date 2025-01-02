@@ -675,3 +675,67 @@ await new Promise(t => setTimeout(t,0))
 ${speed} *𝚖𝚜*` , edit: key});
     await message.react("✅️")
 })
+
+const store = new Map(); // Used to store toggle states and user-specific data
+const schedule = require("node-schedule");
+
+let autobioJob;
+const mockData = [
+  "ϙᴜᴇ ꜱᴇʀᴀ ꜱᴇʀᴀ....[HAKI]",
+  "ᴡɪsᴅᴏᴍ ʜᴀs ʙᴇᴇɴ ʜᴜɴᴛɪɴɢ ʏᴏᴜ, ʙᴜᴛ ʏᴏᴜ'ᴠᴇ ᴀʟᴡᴀʏs ʙᴇᴇɴ ғᴀsᴛᴇʀ....[HAKI]",
+  "ᴀs ʏᴏᴜ ᴄᴀɴ sᴇᴇ, ʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴅᴇᴀᴅ....[HAKI]",
+  "ɴᴇᴠᴇʀ ʟᴏsᴇ ʏᴏᴜʀ ɪɴɴᴏᴄᴇɴᴄᴇ....[HAKI]",
+  "ᴅᴏ ɴᴏᴛ ᴡᴏʀʀʏ, ᴇᴠᴇʀʏᴛʜɪɴɢ ɪs ɢᴏɪɴɢ ᴛᴏ ʙᴇ ᴏᴋᴀʏ....[HAKI]",
+  "ᴛᴏ ʟɪᴠᴇ ɪs ᴛᴏ ʀɪsᴋ, ᴛᴏ ᴅᴇᴀᴅ ɪs ᴛᴏ ᴄᴏɴǫᴜᴇʀ....[HAKI]",
+  "ʏᴏᴜ'ʀᴇ ᴛʜᴇ ᴀʀᴛ ᴏғ ʏᴏᴜʀ ᴏᴡɴ ᴅᴇsᴛɪɴʏ....[HAKI]",
+  "ᴅᴏɴ'ᴛ ᴇᴠᴇʀ ɪɴʜɪʙɪᴛ ʏᴏᴜʀ ᴡɪɴɢs....[HAKI]",
+  "ɢɪᴠᴇ ᴛʜᴇ ᴡᴏʀʟᴅ ʏᴏᴜʀ ʙᴇsᴛ ᴠᴇʀsɪᴏɴ....[HAKI]",
+  "ᴄʀᴇᴀᴛᴇ ʏᴏᴜʀ ᴅᴇsᴛɪɴʏ, ᴅᴏɴ'ᴛ ʟᴇᴛ ɪᴛ ʙᴇ ᴄʀᴇᴀᴛᴇᴅ ғᴏʀ ʏᴏᴜ....[HAKI]"
+];
+
+// Command to toggle autobio
+command(
+  {
+    pattern: "autobio ?(.*)",
+    fromMe: true,
+    desc: "Enable/Disable autobio updates",
+    type: "utility",
+  },
+  async (message, match) => {
+    const user = message.sender;
+    const args = match.toLowerCase();
+
+    if (args === "on") {
+      if (store.get(user)) {
+        return await message.reply("Autobio is already enabled for you.");
+      }
+
+      store.set(user, true);
+
+      // Start autobio updates
+      autobioJob = schedule.scheduleJob("0 0 0 * * *", async () => {  // Trigger every day at midnight
+        const randomBio = mockData[Math.floor(Math.random() * mockData.length)];
+        await message.client.updateProfileStatus(randomBio);
+        console.log(`Bio updated for ${user}: ${randomBio}`);
+      });
+
+      return await message.reply("Autobio has been enabled. Bio will update every 24 hours.");
+    } else if (args === "off") {
+      if (!store.get(user)) {
+        return await message.reply("Autobio is not enabled for you.");
+      }
+
+      store.delete(user);
+
+      // Stop autobio updates
+      if (autobioJob) {
+        autobioJob.cancel();
+        autobioJob = null;
+      }
+
+      return await message.reply("Autobio has been disabled.");
+    } else {
+      return await message.reply("Usage: !autobio on/off");
+    }
+  }
+);
