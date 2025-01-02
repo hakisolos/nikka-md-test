@@ -510,4 +510,30 @@ command(
     }
   }
 );
+command(
+  {
+    pattern: "sendfile ?(.*)",
+    fromMe: true,
+    desc: "Send media from a direct URL",
+    type: "download",
+  },
+  async (message, match) => {
+    const url = match.trim();
 
+    if (!url) {
+      await message.react("❌");
+      return await message.reply("*_Please provide a valid URL to send media._*");
+    }
+
+    try {
+      await message.react("⏳"); // React with "pending"
+      await message.sendFromUrl(url);
+      await message.react("✅"); // React with "successful"
+      
+    } catch (err) {
+      await message.react("❌"); // React with "error"
+      console.error(err);
+      await message.reply("*_Failed to send media. Please check the URL and try again._*");
+    }
+  }
+);
