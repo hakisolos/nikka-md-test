@@ -1,6 +1,8 @@
 const { command, isPrivate, tiny, isAdmin, parsedJid, isUrl } = require("../lib");
 const Jimp = require("jimp");
 const config = require("../config");
+const fs = require("fs");
+
 command(
   {
     pattern: "add ?(.*)",
@@ -540,7 +542,6 @@ async function generateProfilePicture(buffer) {
   };
 }
 
-const fs = require("fs");
 
 command(
     {
@@ -691,7 +692,7 @@ return await message.client.sendMessage(message.jid,{ document :{ url: "https://
     }
     );
 
-const fs = require("fs");
+
 
 command(
     {
