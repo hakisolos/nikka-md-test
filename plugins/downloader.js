@@ -537,3 +537,64 @@ command(
     }
   }
 );
+
+command(
+    {
+        pattern: "play",
+        desc: "Plays music",
+        type: "downloader",
+        fromMe: true
+    },
+    async (message, match) => {
+        if (!match) return await message.reply("Provide a song query.");
+
+        try {
+            await message.react("⏳️");
+
+            // Fetch data from API
+            const response = await getJson(`https://nikka-api.us.kg/search/yts?q=${match}&apiKey=nikka`);
+
+            const results = response.data;
+
+            // Check if data is available
+            if (!results || !Array.isArray(results) || results.length === 0) {
+                return await message.reply("No results found for your query. Please try again.");
+            }
+
+            // Pick the first result
+            const res = results[0];
+
+            // Check if necessary fields are present
+            if (!res.url || !res.title || !res.author || !res.thumbnail) {
+                return await message.reply("Could not fetch the song details. Please try again.");
+            }
+
+            const aud = `https://ironman.koyeb.app/ironman/dl/yta?url=${res.url}`;
+            const text = `_*NOW DOWNLOADING ${res.title} by ${res.author.name}*_`;
+
+            await message.client.sendMessage(message.jid, {
+                audio: { url: aud },
+                mimetype: "audio/mpeg",
+                ptt: false,
+                contextInfo: {
+                    externalAdReply: {
+                        title: res.title,
+                        body: "Powered by Nikka Botz",
+                        sourceUrl: "https://whatsapp.com/channel/0029VaoLotu42DchJmXKBN3L",
+                        mediaUrl: res.url,
+                        mediaType: 1,
+                        showAdAttribution: true,
+                        renderLargerThumbnail: true,
+                        thumbnailUrl: res.thumbnail
+                    }
+                }
+            });
+
+            await message.react("✅️");
+        } catch (error) {
+            console.error("Error:", error);
+            await message.react("❌️");
+            await message.reply("An error occurred while processing your request.");
+        }
+    }
+);
