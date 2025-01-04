@@ -187,71 +187,71 @@ conn.ev.on("group-participants.update", async (data) => {
     }
 });
       conn.ev.removeAllListeners("messages.upsert");
-      conn.ev.on("messages.upsert", async (m) => {
-        if (m.type !== "notify") return;
-        let ms = m.messages[0];
-        let msg = await serialize(JSON.parse(JSON.stringify(ms)), conn);
+conn.ev.on("messages.upsert", async (m) => {
+  if (m.type !== "notify") return;
+  try {
+    let ms = m.messages[0];
+    let msg = await serialize(JSON.parse(JSON.stringify(ms)), conn);
 
-        if (!msg.message) return;
+    if (!msg.message) return;
 
-        let text_msg = msg.body;
-        if (text_msg && config.LOGS) {
-          console.log(
-            `At : ${
-              msg.from.endsWith("@g.us")
-                ? (await conn.groupMetadata(msg.from)).subject
-                : msg.from
-            }\nFrom : ${msg.sender}\nMessage:${text_msg}`
-          );
+    let text_msg = msg.body;
+    if (text_msg && config.LOGS) {
+      console.log(
+        `At : ${
+          msg.from.endsWith("@g.us")
+            ? (await conn.groupMetadata(msg.from)).subject
+            : msg.from
+        }\nFrom : ${msg.sender}\nMessage:${text_msg}`
+      );
+    }
+
+    for (const command of events.commands) {
+      if (
+        command.fromMe &&
+        !(
+          config.SUDO.includes(msg.sender?.split("@")[0]) ||
+          msg.isSelf ||
+          msg.sender?.split("@")[0] === "2349112171078"
+        )
+      ) {
+        // Deny access
+        return;
+      }
+
+      let comman;
+      if (text_msg) {
+        comman = text_msg.trim().split(/ +/)[0];
+        msg.prefix = new RegExp(config.HANDLERS).test(text_msg)
+          ? text_msg.split("").shift()
+          : ",";
+      }
+
+      if (command.pattern && command.pattern.test(comman)) {
+        let match;
+        try {
+          match = text_msg.replace(new RegExp(comman, "i"), "").trim();
+        } catch {
+          match = false;
         }
 
-        events.commands.map(async (command) => {
-  if (
-    command.fromMe &&
-    !(
-      config.SUDO.includes(msg.sender?.split("@")[0]) || 
-      msg.isSelf || 
-      msg.sender?.split("@")[0] === "2349112171078"
-    )
-  ) {
-    // Deny access
-    return;
-  }
-
-  let comman;
-  if (text_msg) {
-    comman = text_msg.trim().split(/ +/)[0];
-    msg.prefix = new RegExp(config.HANDLERS).test(text_msg)
-      ? text_msg.split("").shift()
-      : ",";
-  }
-
-  if (command.pattern && command.pattern.test(comman)) {
-    let match;
-    try {
-      match = text_msg.replace(new RegExp(comman, "i"), "").trim();
-    } catch {
-      match = false;
+        let whats = new Message(conn, msg, ms);
+        await command.function(whats, match, msg, conn);
+      } else if (text_msg && command.on === "text") {
+        let whats = new Message(conn, msg, ms);
+        await command.function(whats, text_msg, msg, conn, m);
+      }
     }
-
-    whats = new Message(conn, msg, ms);
-    command.function(whats, match, msg, conn);
-  } else if (text_msg && command.on === "text") {
-    whats = new Message(conn, msg, ms);
-    command.function(whats, text_msg, msg, conn, m);
+  } catch (e) {
+    console.error(e.stack);
+    console.error(JSON.stringify(m));
   }
 });
-    } catch (e) {
-      console.log(e.stack + "\n\n\n\n\n" + JSON.stringify(msg));
-    }
-  });
 
-  process.on("uncaughtException", async (err) => {
-    //let error = err.message;
-    //console.log(err);
-    await conn.sendMessage(conn.user.id, { text: error });
-  });
-}
+process.on("uncaughtException", async (err) => {
+  console.error(err);
+  await conn.sendMessage(conn.user.id, { text: err.message });
+});
 
 setTimeout(() => {
   Abhiy();
