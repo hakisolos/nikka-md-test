@@ -216,30 +216,31 @@ conn.ev.on("group-participants.update", async (data) => {
   ) {
     // Deny access
     return;
+  }
 
-          let comman;
-          if (text_msg) {
-            comman = text_msg.trim().split(/ +/)[0];
-            msg.prefix = new RegExp(config.HANDLERS).test(text_msg)
-              ? text_msg.split("").shift()
-              : ",";
-          }
+  let comman;
+  if (text_msg) {
+    comman = text_msg.trim().split(/ +/)[0];
+    msg.prefix = new RegExp(config.HANDLERS).test(text_msg)
+      ? text_msg.split("").shift()
+      : ",";
+  }
 
-          if (command.pattern && command.pattern.test(comman)) {
-            var match;
-            try {
-              match = text_msg.replace(new RegExp(comman, "i"), "").trim();
-            } catch {
-              match = false;
-            }
+  if (command.pattern && command.pattern.test(comman)) {
+    let match;
+    try {
+      match = text_msg.replace(new RegExp(comman, "i"), "").trim();
+    } catch {
+      match = false;
+    }
 
-            whats = new Message(conn, msg, ms);
-            command.function(whats, match, msg, conn);
-          } else if (text_msg && command.on === "text") {
-            whats = new Message(conn, msg, ms);
-            command.function(whats, text_msg, msg, conn, m);
-          }
-      });
+    whats = new Message(conn, msg, ms);
+    command.function(whats, match, msg, conn);
+  } else if (text_msg && command.on === "text") {
+    whats = new Message(conn, msg, ms);
+    command.function(whats, text_msg, msg, conn, m);
+  }
+});
     } catch (e) {
       console.log(e.stack + "\n\n\n\n\n" + JSON.stringify(msg));
     }
