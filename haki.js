@@ -239,7 +239,6 @@ conn.ev.on("group-participants.update", async (data) => {
             whats = new Message(conn, msg, ms);
             command.function(whats, text_msg, msg, conn, m);
           }
-        });
       });
     } catch (e) {
       console.log(e.stack + "\n\n\n\n\n" + JSON.stringify(msg));
