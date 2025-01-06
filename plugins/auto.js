@@ -1,4 +1,5 @@
 const fs = require("fs");
+const { command } = require("../lib");
 const path = "./autodl_config.json"; // Path for the JSON file
 
 // Initialize the configuration JSON file if it doesn't exist
