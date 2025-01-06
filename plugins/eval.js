@@ -51,12 +51,12 @@ you may not use this file except in compliance with the License.
 X-Asena - X-Electra
 */
 
-command({pattern:'eval', on: "text", fromMe: true,desc :'Runs a server code'}, async (message, match, m, client) => {
+command({pattern:'eval', on: "text", fromMe: true, desc: 'Runs a server code'}, async (message, match, m, client) => {
   if (match.startsWith(">")) {
-    //const m = message;
     try {
-      let evaled = await eval(`${match.replace(">", "")}`);
-      if (typeof evaled !== "string") evaled = require("util").inspect(evaled);
+      const code = `(async () => { ${match.replace(">", "")} })()`;
+      let evaled = await eval(code);
+      if (typeof evaled !== "string") evaled = util.inspect(evaled);
       await message.reply(evaled);
     } catch (err) {
       await message.reply(util.format(err));
