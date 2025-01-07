@@ -738,4 +738,51 @@ command(
       return await message.reply("Usage: !autobio on/off");
     }
   }
-);
+));
+
+command({
+    pattern: "uptime",
+    fromMe: isPrivate,
+    desc: "Bot Runtime",
+    type: "user",
+}, async (message, match) => {
+    try {
+        // Calculate bot runtime in seconds
+        const uptimeInSeconds = process.uptime();
+
+        // Calculate days, hours, minutes, and seconds
+        const days = Math.floor(uptimeInSeconds / (24 * 3600));
+        const hours = Math.floor((uptimeInSeconds % (24 * 3600)) / 3600);
+        const minutes = Math.floor((uptimeInSeconds % 3600) / 60);
+        const seconds = Math.floor(uptimeInSeconds % 60);
+
+        // Construct the uptime message (heading will be uptime in bold)
+        const uptimeMessage = `*${days} Days, ${hours} Hours, ${minutes} Minutes, ${seconds} Seconds*`; // Bold uptime message
+
+        // Define the audio URL and the thumbnail URL (you'll provide the thumbnail URL)
+        const aud = 'https://files.catbox.moe/hbrrav.mp3';  // Provided audio URL
+        const thumbnailUrl = 'https://files.catbox.moe/1838qx.jpg'; // Replace with the thumbnail URL you provide
+
+        // Send the audio with the uptime as the heading and the thumbnail
+        await message.client.sendMessage(message.jid, {
+            audio: { url: aud },
+            mimetype: "audio/mpeg",
+            ptt: true,
+            contextInfo: {
+                externalAdReply: {
+                    title: uptimeMessage, // Display uptime as the title (bold)
+                    body: "Powered by Nikka Botz", // Footer message
+                    sourceUrl: "https://whatsapp.com/channel/0029VaoLotu42DchJmXKBN3L", // Channel URL
+                    mediaUrl: aud, // Audio URL
+                    mediaType: 1,
+                    showAdAttribution: true,
+                    renderLargerThumbnail: true,
+                    thumbnailUrl: thumbnailUrl // Provided thumbnail URL
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error sending audio with uptime:', error);
+        await message.reply('❌ Failed to send the audio with uptime.');
+    }
+});
