@@ -322,3 +322,40 @@ command(
         }
     }
 );
+
+command(
+    {
+        pattern: "binai",
+        desc: "AI chat with Bing, supports replies as queries",
+        fromMe: isPrivate,
+        type: "ai",
+    },
+    async (message, match) => {
+        // Determine the query: use the replied message text if available, or the provided input
+        const query = message.reply_message
+            ? `${match || ""} ${message.reply_message.text}`.trim()
+            : match;
+
+        // If no query is found, prompt the user to provide one
+        if (!query) {
+            return await message.reply("Please provide a query to search.");
+        }
+
+        try {
+            // Fetch data from the Bing API
+            const response = await getJson(`https://nikka-api.us.kg/ai/bing?apiKey=nikka&q=${encodeURIComponent(query)}`);
+
+            if (response && response.data && response.data.status) {
+                // Extract and send the "data" field
+                await message.reply(response.data.data);
+            } else {
+                // Handle unexpected response or status false
+                await message.reply("No valid response received. Please check your query and try again.");
+            }
+        } catch (error) {
+            // Handle errors
+            console.error("Error processing Bing API request:", error.message);
+            await message.reply("An error occurred while processing your request. Please try again later.");
+        }
+    }
+);
