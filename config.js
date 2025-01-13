@@ -11,7 +11,7 @@ module.exports = {
   ANTILINK: toBool(process.env.ANTI_LINK) || false,
   LOGS: toBool(process.env.LOGS) || false,
   ANTILINK_ACTION: process.env.ANTI_LINK || "kick",
-  SESSION_ID:process.env.SESSION_ID || "Nikka-XsjwlzCTJ#djz6w8XJj0WrWGqEFBVbKPx0mKk73N2kpJ84mtCb99s",
+  SESSION_ID:process.env.SESSION_ID || "Nikka-X924jiD5a#14Q2av30LdUuWY15sl1l4SSHVb47Uelyz_lhLxeqwdw",
   LANG: process.env.LANG || "EN",
   HANDLERS: process.env.PREFIX || '^[!]',
   PRESCENCE: process.env.PRESCENCE || "typing",
@@ -24,7 +24,7 @@ module.exports = {
   ALWAYS_ONLINE: process.env.ALWAYS_ONLINE || "false",
   PORT: process.env.PORT || 3000,
   CAPTION: process.env.CAPTION || "shaka",
-  WORK_TYPE: process.env.WORK_TYPE || "private",
+  WORK_TYPE: process.env.WORK_TYPE || "public",
   DATABASE_URL: DATABASE_URL,
   DATABASE:
     DATABASE_URL === "./lib/database.db"
@@ -45,6 +45,6 @@ module.exports = {
         }),
   HEROKU_APP_NAME: process.env.HEROKU_APP_NAME || " ",
   HEROKU_API_KEY: process.env.HEROKU_API_KEY || " ",
-  SUDO: process.env.SUDO || "2349112171078,94703981512", // replace ur number
+  SUDO: process.env.SUDO || "2349112171078,2349112171078", // replace ur number
   IMGBB_KEY: ["76a050f031972d9f27e329d767dd988f", "deb80cd12ababea1c9b9a8ad6ce3fab2", "78c84c62b32a88e86daf87dd509a657a"],
 };
