@@ -30,7 +30,7 @@ const {
   FileSize,
   h2k,
   textpro,
-  yt,
+  
   ytIdRegex,
   yta,
   ytv,
@@ -43,6 +43,7 @@ const {
   command,
 } = require("../lib/");
 const util = require("util");
+const { yt } = require("../lib/scrappers/ytdl");
 const config = require("../config");
 
 
