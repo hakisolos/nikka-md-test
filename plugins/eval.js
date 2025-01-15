@@ -30,10 +30,11 @@ const {
   FileSize,
   h2k,
   textpro,
-  
+  ttdl,
   ytIdRegex,
   yta,
   ytv,
+  yts,
   runtime,
   clockString,
   sleep,
